@@ -36,8 +36,8 @@ once-per-machine parts a script can't safely do.
 
 ### 2. Scripted restore
 ```sh
-git clone https://github.com/removingnest109/void-dotfiles.git ~/dotfiles
-cd ~/dotfiles
+git clone https://github.com/removingnest109/void-dotfiles.git ~/void-dotfiles
+cd ~/void-dotfiles
 ./install.sh --dry-run   # inspect first
 ./install.sh             # repo pkgs → xbps-src pkgs → dotfiles → services → /etc
 ```
@@ -65,20 +65,20 @@ move/delete it and re-run (`install.sh` uses `stow -R`, so re-running is safe).
 **Editing a tracked config** — just edit it in place (e.g. `~/.config/bspwm/bspwmrc`);
 it's a symlink into this repo, so the change is already here. Then:
 ```sh
-git -C ~/dotfiles add -A && git -C ~/dotfiles commit -m "tweak" && git -C ~/dotfiles push
+git -C ~/void-dotfiles add -A && git -C ~/void-dotfiles commit -m "tweak" && git -C ~/void-dotfiles push
 ```
 
 **After installing a package or enabling a service** — regenerate the manifests:
 ```sh
-~/dotfiles/sync-packages.sh # rewrites packages.txt + services.txt, shows a diff
-git -C ~/dotfiles add -A && git -C ~/dotfiles commit -m "sync" && git -C ~/dotfiles push
+~/void-dotfiles/sync-packages.sh # rewrites packages.txt + services.txt, shows a diff
+git -C ~/void-dotfiles add -A && git -C ~/void-dotfiles commit -m "sync" && git -C ~/void-dotfiles push
 ```
 
 **Tracking a NEW config file** — move it into the repo, then stow it back as a symlink:
 ```sh
-mv ~/.config/foo ~/dotfiles/config/.config/foo
-stow --no-folding -R -t ~ -d ~/dotfiles config
-git -C ~/dotfiles add -A && git -C ~/dotfiles commit -m "track foo"
+mv ~/.config/foo ~/void-dotfiles/config/.config/foo
+stow --no-folding -R -t ~ -d ~/void-dotfiles config
+git -C ~/void-dotfiles add -A && git -C ~/void-dotfiles commit -m "track foo"
 ```
 
 **A self-built (xbps-src) package** — add its name to `packages-src.txt` by hand
