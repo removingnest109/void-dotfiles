@@ -6,7 +6,9 @@ Reproducible config for my Void Linux (xbps, bspwm/X11) machine — Dell Inspiro
 
 | Path | What |
 |------|------|
-| `packages.txt` | Manually-installed xbps packages (bare names, one per line) |
+| `packages.txt` | Manually-installed xbps packages from official repos (bare names) |
+| `packages-src.txt` | Packages **not** in the repos, built via xbps-src (discord, runner) |
+| `build-src.sh` | Clones void-packages, binary-bootstraps, builds `packages-src.txt` |
 | `services.txt` | runit services I enable (base ones like dbus/udevd excluded) |
 | `config/` | `~/.config` trees (bspwm, sxhkd, polybar, rofi, alacritty, …), stowed into place |
 | `home/` | home dotfiles (`.bashrc`, `.gitconfig`, `.Xresources`, …) |
@@ -35,8 +37,13 @@ once-per-machine parts a script can't safely do.
 git clone <this repo> ~/dotfiles
 cd ~/dotfiles
 ./install.sh --dry-run   # inspect first
-./install.sh             # packages → dotfiles → services → /etc
+./install.sh             # repo pkgs → xbps-src pkgs → dotfiles → services → /etc
 ```
+`install.sh` calls `build-src.sh` for `discord` and `runner`, which aren't in the
+official repos. That step clones `void-packages`, runs a one-time `binary-bootstrap`
+(downloads a base build environment — slow), builds each package, and installs it.
+`discord` is a *restricted* template, so `build-src.sh` sets `XBPS_ALLOW_RESTRICTED=yes`.
+Run it on its own any time with `./build-src.sh`.
 If stow reports a conflict, a real file already exists where a symlink should go —
 move/delete it and re-run (`install.sh` uses `stow -R`, so re-running is safe).
 

@@ -6,9 +6,15 @@ set -eu
 REPO="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO"
 
-echo ">> packages.txt"
+echo ">> packages.txt (official repos; xbps-src packages kept in packages-src.txt)"
 xbps-query -m | while read -r p; do xbps-uhelper getpkgname "$p"; done | sort -u > packages.txt
 for p in stow git; do grep -qx "$p" packages.txt || echo "$p" >> packages.txt; done
+# subtract anything tracked as an xbps-src build (discord, runner, ...)
+if [ -s packages-src.txt ]; then
+  grep -vE '^\s*(#|$)' packages-src.txt | sort -u > .src.tmp
+  grep -vxf .src.tmp packages.txt > .pkg.tmp && mv .pkg.tmp packages.txt
+  rm -f .src.tmp
+fi
 sort -u -o packages.txt packages.txt
 
 echo ">> services.txt"

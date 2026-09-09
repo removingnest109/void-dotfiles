@@ -1,0 +1,4 @@
+# Packages NOT in the official Void repos - built locally via xbps-src.
+# discord is a restricted package (needs XBPS_ALLOW_RESTRICTED=yes).
+discord
+runner

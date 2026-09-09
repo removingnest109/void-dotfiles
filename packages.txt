@@ -11,7 +11,6 @@ cmake
 cryptsetup
 dejavu-fonts-ttf
 dialog
-discord
 fastfetch
 firefox
 font-misc-misc
@@ -46,7 +45,6 @@ psmisc
 qemu
 rofi
 rsync
-runner
 screen
 setxkbmap
 stow
