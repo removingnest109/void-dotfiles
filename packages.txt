@@ -39,7 +39,6 @@ patch
 picocom
 pipewire
 pkg-config
-polybar
 powertop
 psmisc
 qemu

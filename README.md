@@ -10,7 +10,7 @@ Reproducible config for my Void Linux (xbps, bspwm/X11) machine — Dell Inspiro
 | `packages-src.txt` | Packages **not** in the repos, built via xbps-src (discord, runner) |
 | `build-src.sh` | Clones void-packages, binary-bootstraps, builds `packages-src.txt` |
 | `services.txt` | runit services I enable (base ones like dbus/udevd excluded) |
-| `config/` | `~/.config` trees (bspwm, sxhkd, polybar, rofi, alacritty, …), stowed into place |
+| `config/` | `~/.config` trees (bspwm, sxhkd, rofi, alacritty, …), stowed into place |
 | `home/` | home dotfiles (`.bashrc`, `.gitconfig`, `.Xresources`, …) |
 | `local/` | curated `~/.local` (my `bin/` scripts, `share/applications`, icons) |
 | `etc/` | curated `/etc` (xbps mirror config, `tlp.conf`, lightdm) |

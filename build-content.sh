@@ -12,7 +12,7 @@ mkdir -p "$REPO"/config/.config "$REPO"/home \
          "$REPO"/etc/xbps.d "$REPO"/etc/lightdm
 
 # ---- ~/.config (curated: real config, no app caches/state/secrets) ----
-CFG_INCLUDE="bspwm sxhkd polybar rofi alacritty fastfetch gtk-3.0 Thunar xfce4 Mousepad menus git desktop-directories mimeapps.list user-dirs.dirs user-dirs.locale QtProject.conf"
+CFG_INCLUDE="bspwm sxhkd rofi alacritty fastfetch gtk-3.0 Thunar xfce4 Mousepad menus git desktop-directories mimeapps.list user-dirs.dirs user-dirs.locale QtProject.conf"
 for item in $CFG_INCLUDE; do
   [ -e "$CFG/$item" ] && cp -a "$CFG/$item" "$REPO/config/.config/"
 done
