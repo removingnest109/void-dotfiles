@@ -10,6 +10,7 @@ idempotent script.
 |------|------|
 | `packages.txt` | Manually-installed xbps packages from official repos (bare names) |
 | `packages-src.txt` | Packages **not** in the repos, built via xbps-src (discord, runner) |
+| `packages-musl-skip.txt` | Packages to exclude on a `--musl` install (not in the musl repo) |
 | `build-src.sh` | Clones void-packages, binary-bootstraps, builds `packages-src.txt` |
 | `services.txt` | runit services to enable (base ones like dbus/udevd excluded) |
 | `config/` | `~/.config` trees (bspwm, sxhkd, rofi, alacritty, …), stowed into place |
@@ -42,10 +43,15 @@ cd ~/void-dotfiles
 ./install.sh             # repo pkgs → xbps-src pkgs → dotfiles → services → /etc
 ```
 
-Flags (combinable, any order): `--dry-run` prints every step without changing
-anything; `--skip-src` skips the xbps-src step entirely — no discord/runner, and
-`void-packages` is never cloned or bootstrapped. Handy for a quick install without the
-slow source build.
+Flags (combinable, any order):
+- `--dry-run` — print every step without changing anything.
+- `--skip-src` — skip the xbps-src step entirely: no discord/runner, and
+  `void-packages` is never cloned or bootstrapped. Handy for a quick install without
+  the slow source build.
+- `--musl` — install on a **musl** system: points the repo config at the musl subtree
+  (`…/current/musl`), excludes the packages listed in `packages-musl-skip.txt`, and
+  implies `--skip-src` (discord is glibc-only). If `xbps-install` still fails on a
+  "package not found", add that package to `packages-musl-skip.txt` and re-run.
 
 `install.sh` is idempotent — safe to re-run. It runs best **before** starting a
 graphical session (an empty `~/.config` means stow has nothing to collide with). If

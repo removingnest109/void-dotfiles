@@ -6,17 +6,22 @@
 #   ./install.sh --dry-run   # print what would happen, change nothing
 #   ./install.sh --skip-src  # skip the xbps-src step (no discord/runner, no
 #                            #   void-packages clone/bootstrap)
+#   ./install.sh --musl      # install on a musl system: points the repo at the
+#                            #   musl subtree, excludes packages-musl-skip.txt,
+#                            #   and implies --skip-src (discord is glibc-only)
 # Flags may be combined and given in any order.
 set -eu
 
 REPO="$(cd "$(dirname "$0")" && pwd)"
 DRY=0
 SKIP_SRC=0
+MUSL=0
 for arg in "$@"; do
   case "$arg" in
     --dry-run)  DRY=1 ;;
     --skip-src) SKIP_SRC=1 ;;
-    -h|--help)  echo "usage: install.sh [--dry-run] [--skip-src]"; exit 0 ;;
+    --musl)     MUSL=1; SKIP_SRC=1 ;;
+    -h|--help)  echo "usage: install.sh [--dry-run] [--skip-src] [--musl]"; exit 0 ;;
     *) echo "unknown option: $arg (try --help)" >&2; exit 2 ;;
   esac
 done
@@ -29,18 +34,36 @@ command -v xbps-install >/dev/null || { echo "This is for Void Linux (xbps not f
 
 say "1/7  Repo config (mirror + xbps.d), then sync"
 for f in "$REPO"/etc/xbps.d/*.conf; do
-  [ -e "$f" ] && run "sudo cp -v '$f' /etc/xbps.d/"
+  [ -e "$f" ] || continue
+  if [ "$MUSL" = 1 ]; then
+    # point the main repository at the musl subtree (.../current -> .../current/musl)
+    tmp="$(mktemp)"
+    sed -E 's#^(repository=.*/current)/?$#\1/musl#' "$f" > "$tmp"
+    run "sudo cp -v '$tmp' '/etc/xbps.d/$(basename "$f")'"
+    rm -f "$tmp"
+  else
+    run "sudo cp -v '$f' /etc/xbps.d/"
+  fi
 done
 run "sudo xbps-install -Sy"
 
 say "2/7  Packages (official repos)"
 # packages.txt is bare pkg names, one per line, comments (#) allowed
-PKGS="$(grep -vE '^\s*(#|$)' "$REPO/packages.txt" | tr '\n' ' ')"
+PKGS_LIST="$(grep -vE '^\s*(#|$)' "$REPO/packages.txt")"
+if [ "$MUSL" = 1 ] && [ -s "$REPO/packages-musl-skip.txt" ]; then
+  grep -vE '^\s*(#|$)' "$REPO/packages-musl-skip.txt" > /tmp/musl-skip.$$ || true
+  if [ -s /tmp/musl-skip.$$ ]; then
+    echo "  (musl: excluding $(tr '\n' ' ' < /tmp/musl-skip.$$))"
+    PKGS_LIST="$(printf '%s\n' "$PKGS_LIST" | grep -vxFf /tmp/musl-skip.$$ || true)"
+  fi
+  rm -f /tmp/musl-skip.$$
+fi
+PKGS="$(printf '%s ' $PKGS_LIST)"
 run "sudo xbps-install -y $PKGS"
 
 say "3/7  Non-repo packages via xbps-src (discord, runner)"
 if [ "$SKIP_SRC" = 1 ]; then
-  echo "  (skipped: --skip-src)"
+  [ "$MUSL" = 1 ] && echo "  (skipped: --musl; discord is glibc-only)" || echo "  (skipped: --skip-src)"
 elif grep -qvE '^\s*(#|$)' "$REPO/packages-src.txt" 2>/dev/null; then
   run "'$REPO/build-src.sh'"
 fi

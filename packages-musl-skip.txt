@@ -1,0 +1,7 @@
+# Packages excluded when installing with `install.sh --musl` because they aren't
+# in Void's musl repo (or don't work on musl). Edit as you verify availability:
+# if `xbps-install` fails on a "package not found" during a --musl install, add that
+# package name here and re-run. (discord is handled separately: --musl implies
+# --skip-src, and discord is glibc-only.)
+vscode
+wine
