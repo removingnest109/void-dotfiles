@@ -1,0 +1,5 @@
+! Pin font DPI so terminal/GTK fonts render identically across
+! XFCE and bspwm sessions. Without this, each session auto-computes
+! DPI from the 15.6-inch 1080p panel (about 141 physical DPI), so
+! fonts look oversized/zoomed under bspwm.
+Xft.dpi: 96

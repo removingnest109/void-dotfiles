@@ -1,0 +1,9 @@
+NetworkManager
+chronyd
+libvirtd
+lightdm
+polkitd
+sshd
+thermald
+tlp
+virtlogd

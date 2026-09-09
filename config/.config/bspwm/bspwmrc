@@ -1,0 +1,88 @@
+#! /bin/sh
+
+# Pin font DPI (bspwm has no settings daemon; without this, apps fall
+# back to the panel's ~141 physical DPI and fonts look oversized).
+[ -f ~/.Xresources ] && xrdb -merge ~/.Xresources
+
+# XSETTINGS daemon. bspwm broadcasts no XSETTINGS, so GTK apps ignore the
+# theme stored in xfconf (currently Adwaita-dark) and fall back to light
+# Adwaita. xfsettingsd serves those xfconf values (Net/ThemeName, icons,
+# fonts) over XSETTINGS so apps pick up the dark theme and update live.
+# Change the theme with: xfconf-query -c xsettings -p /Net/ThemeName -s <name>
+pkill -x xfsettingsd
+xfsettingsd &
+
+# Keyring. PAM (pam_gnome_keyring in /etc/pam.d/lightdm) unlocks the login
+# keyring with your password at login, but in a bare-WM session nothing puts
+# its Secret Service on our D-Bus bus, so apps (e.g. Claude) dbus-activate a
+# fresh, LOCKED keyring and prompt again. Running --start here registers the
+# already-unlocked daemon on this session's bus so apps find the unlocked one.
+if command -v gnome-keyring-daemon >/dev/null; then
+    eval "$(gnome-keyring-daemon --start --components=secrets,ssh,pkcs11 2>/dev/null)"
+    export SSH_AUTH_SOCK
+fi
+
+# Audio. bspwm does not process XDG autostart, so /etc/xdg/autostart/pipewire.desktop
+# never runs and nothing starts PipeWire. Start ONLY `pipewire`: the drop-ins in
+# /etc/pipewire/pipewire.conf.d/ (10-wireplumber, 20-pipewire-pulse) make it spawn
+# wireplumber + pipewire-pulse itself. Launching those separately makes two stacks
+# fight over the ALSA device ("Dummy Output" + endless popups). Guard against
+# double-starting on reload (pgrep -x pipewire also matches the pulse instance).
+if ! pgrep -x pipewire >/dev/null; then
+    pipewire >/dev/null 2>&1 &
+fi
+
+# Reload keybinding daemon
+pkill -x sxhkd
+sxhkd &
+
+# XFCE panel: the bar, its right-click menus, and the notification area (system
+# tray) that the applets below dock into. This replaces polybar; the polybar
+# config is kept at ~/.config/polybar but is no longer launched. Configure the
+# panel by right-clicking it (add/remove items, e.g. the PulseAudio plugin for
+# sound volume/device control).
+pkill -x xfce4-panel
+xfce4-panel &
+
+# Network tray applet (NetworkManager). Lives in the panel's notification area.
+pkill -x nm-applet
+nm-applet &
+
+# Package manager notifier (system tray)
+pkill -x octoxbps-notifier
+octoxbps-notifier &
+
+# Power management (idle dim/blank/DPMS, lid + idle suspend, battery-critical
+# action, brightness keys). bspwm has no DE to do this, so run it explicitly.
+# Configure with: xfce4-power-manager-settings
+pkill -x xfce4-power-manager
+xfce4-power-manager &
+
+# Sound is shown via XFCE's native "PulseAudio Plugin" in the panel
+# (right-click panel -> Panel -> Add New Items -> PulseAudio Plugin).
+
+# 10 workspaces (selected with super+1..9,0 -> see sxhkdrc)
+bspc monitor -d 1 2 3 4 5 6 7 8 9 10
+
+# Reserve space for the XFCE panel. bspwm honors _NET_WM_STRUT for some panels
+# (e.g. polybar) but does NOT reserve space for xfce4-panel, so without this
+# windows tile *over* the panel and it looks like it's hiding. Value = panel
+# height, edge = panel position (see: xfconf-query -c xfce4-panel -p
+# /panels/panel-1/size and .../position). Panel is currently 26px on the BOTTOM;
+# if you move or resize it in the panel settings, update the edge/number here.
+bspc config bottom_padding 26
+
+# Look & feel
+bspc config border_width         2
+bspc config window_gap           0
+bspc config split_ratio          0.52
+bspc config borderless_monocle   true
+bspc config gapless_monocle      true
+
+# Single tiled window -> monocle (so it drops its border via borderless_monocle)
+bspc config single_monocle       true
+bspc config focus_follows_pointer true
+
+# New windows take the larger split (bspwm's automatic longest-edge
+# insertion is the default scheme; this just keeps it explicit).
+bspc config automatic_scheme     longest_side

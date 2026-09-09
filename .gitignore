@@ -1,0 +1,9 @@
+# Defensive: never track credentials, even if a future sync copies them in.
+.git-credentials
+**/gh/hosts.yml
+**/.ssh/
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+**/keyrings/

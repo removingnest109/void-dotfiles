@@ -1,0 +1,9 @@
+[user]
+	name = Ethan Saenger
+	email = ethan@saenger5.com
+[credential]
+	helper = store
+[cola]
+	theme = flat-dark-red
+	icontheme = dark
+	startupmode = folder

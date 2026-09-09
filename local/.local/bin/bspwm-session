@@ -1,0 +1,34 @@
+#!/bin/sh
+# bspwm session launcher (selected as the "bspwm" session in LightDM).
+#
+# Why this exists — a bare window manager has NO session management, so two
+# things a desktop environment normally does for free have to be done here:
+#
+#   1. ONE D-Bus session bus for the whole login. Without it, every tray app
+#      auto-launches its own private bus and they can't see each other (that
+#      is what broke sound + the keyring). dbus-run-session gives bspwm and
+#      all its children a single shared bus.
+#
+#   2. Teardown on logout. The bus dies with dbus-run-session, but daemons
+#      that fork into the background (PipeWire, gnome-keyring) would otherwise
+#      leak into the next login. A leaked PipeWire keeps the sound card, so the
+#      next session shows "no devices". The cleanup trap below kills them.
+#
+# Full rationale + how to reproduce on a new machine: ~/.config/DESKTOP-SETUP.md
+
+cleanup() {
+    # Kill this login's long-running daemons so nothing leaks to the next one.
+    # -f matches the full command line (process names >15 chars are truncated
+    # in the short name, so -x would miss e.g. xfce4-power-manager).
+    for p in xfce4-panel nm-applet xfce4-power-manager \
+             octoxbps-notifier wireplumber pipewire-pulse pipewire \
+             gnome-keyring-daemon; do
+        pkill -u "$(id -u)" -f "$p" 2>/dev/null
+    done
+}
+trap cleanup EXIT
+
+# No `exec` here: we need the shell to survive so the EXIT trap runs after
+# bspwm quits. dbus-run-session runs bspwm on a fresh bus and returns when it
+# exits.
+dbus-run-session -- bspwm

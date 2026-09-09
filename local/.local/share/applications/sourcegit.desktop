@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=SourceGit
+Comment=Git GUI
+Icon=/home/ethan/.local/share/icons/sourcegit.png
+Exec=/bin/sh -c "\\$HOME/appimage/sourcegit*.AppImage"
+Terminal=false
+Type=Application
+Categories=Development;RevisionControl;
+StartupNotify=true

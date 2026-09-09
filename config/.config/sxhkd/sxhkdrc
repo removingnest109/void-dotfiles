@@ -1,0 +1,114 @@
+#
+# sxhkd config for bspwm  (Void Linux)
+# Generated to match the user's former XFCE app shortcuts + requested WM binds.
+#
+
+# ---------------------------------------------------------------------------
+# Application launchers  (ported 1:1 from xfce4-keyboard-shortcuts)
+# ---------------------------------------------------------------------------
+
+# terminal  (was: exo-open --launch TerminalEmulator)
+super + Return
+	exo-open --launch TerminalEmulator
+
+# web browser  (was: exo-open --launch WebBrowser)
+super + w
+	exo-open --launch WebBrowser
+
+# file manager
+super + t
+	thunar
+
+# app launcher
+super + d
+	rofi -show drun
+
+# logout dialog
+super + e
+	xfce4-session-logout
+
+ctrl + alt + Delete
+	xfce4-session-logout
+
+# task manager
+ctrl + shift + Escape
+	xfce4-taskmanager
+
+# screenshots  (full / window / region)
+Print
+	xfce4-screenshooter
+alt + Print
+	xfce4-screenshooter -w
+shift + Print
+	xfce4-screenshooter -r
+
+# ---------------------------------------------------------------------------
+# Media keys  (XFCE's settings daemon used to bind these; bspwm has none, so
+# bind them here. Uses wpctl from WirePlumber; -l 1.0 caps volume at 100%.)
+# ---------------------------------------------------------------------------
+
+XF86AudioRaiseVolume
+	wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
+
+XF86AudioLowerVolume
+	wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+
+XF86AudioMute
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+
+# mic mute (toggles the default source)
+XF86AudioMicMute
+	wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+
+# ---------------------------------------------------------------------------
+# bspwm / sxhkd control
+# ---------------------------------------------------------------------------
+
+# reload this sxhkd config
+super + Escape
+	pkill -USR1 -x sxhkd
+
+# restart bspwm
+super + alt + r
+	bspc wm -r
+
+# reload bspwm config (re-run bspwmrc)
+super + shift + r
+	~/.config/bspwm/bspwmrc
+
+# kill focused window (force-destroy; use -c instead for a graceful close)
+super + shift + q
+	bspc node -k
+
+# quit bspwm (log out to LightDM)
+super + shift + e
+	bspc quit
+
+# toggle fullscreen  (matches your old super+f)
+super + f
+	bspc node -t ~fullscreen
+
+# toggle floating
+super + shift + space
+	bspc node -t ~floating
+
+# ---------------------------------------------------------------------------
+# Workspaces
+# ---------------------------------------------------------------------------
+
+# select workspace 1..10 with super + 1..9,0
+# send focused window to workspace 1..10 with super + shift + 1..9,0
+super + {_,shift + }{1-9,0}
+	bspc {desktop -f,node -d} '^{1-9,10}'
+
+# ---------------------------------------------------------------------------
+# Move / focus windows within a workspace
+# ---------------------------------------------------------------------------
+
+# move (swap) the focused window around with super + shift + arrows
+super + shift + {Left,Down,Up,Right}
+	bspc node -s {west,south,north,east}
+
+# focus the window in a direction with super + arrows
+super + {Left,Down,Up,Right}
+	bspc node -f {west,south,north,east}
