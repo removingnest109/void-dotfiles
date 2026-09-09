@@ -42,6 +42,11 @@ cd ~/void-dotfiles
 ./install.sh             # repo pkgs → xbps-src pkgs → dotfiles → services → /etc
 ```
 
+Flags (combinable, any order): `--dry-run` prints every step without changing
+anything; `--skip-src` skips the xbps-src step entirely — no discord/runner, and
+`void-packages` is never cloned or bootstrapped. Handy for a quick install without the
+slow source build.
+
 `install.sh` is idempotent — safe to re-run. It runs best **before** starting a
 graphical session (an empty `~/.config` means stow has nothing to collide with). If
 stow reports a conflict, a real file already exists where a symlink should go — move or

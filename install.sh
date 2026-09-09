@@ -2,13 +2,24 @@
 # Restore this Void setup onto a machine. Run as your normal user (it uses sudo
 # where needed). Every step is idempotent: re-running does no harm.
 #
-#   ./install.sh            # do it
-#   ./install.sh --dry-run  # print what would happen, change nothing
+#   ./install.sh             # do it
+#   ./install.sh --dry-run   # print what would happen, change nothing
+#   ./install.sh --skip-src  # skip the xbps-src step (no discord/runner, no
+#                            #   void-packages clone/bootstrap)
+# Flags may be combined and given in any order.
 set -eu
 
 REPO="$(cd "$(dirname "$0")" && pwd)"
 DRY=0
-[ "${1:-}" = "--dry-run" ] && DRY=1
+SKIP_SRC=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run)  DRY=1 ;;
+    --skip-src) SKIP_SRC=1 ;;
+    -h|--help)  echo "usage: install.sh [--dry-run] [--skip-src]"; exit 0 ;;
+    *) echo "unknown option: $arg (try --help)" >&2; exit 2 ;;
+  esac
+done
 
 run() { if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else echo "  + $*"; sh -c "$*"; fi; }
 say() { printf '\n== %s ==\n' "$1"; }
@@ -28,7 +39,9 @@ PKGS="$(grep -vE '^\s*(#|$)' "$REPO/packages.txt" | tr '\n' ' ')"
 run "sudo xbps-install -y $PKGS"
 
 say "3/7  Non-repo packages via xbps-src (discord, runner)"
-if grep -qvE '^\s*(#|$)' "$REPO/packages-src.txt" 2>/dev/null; then
+if [ "$SKIP_SRC" = 1 ]; then
+  echo "  (skipped: --skip-src)"
+elif grep -qvE '^\s*(#|$)' "$REPO/packages-src.txt" 2>/dev/null; then
   run "'$REPO/build-src.sh'"
 fi
 
