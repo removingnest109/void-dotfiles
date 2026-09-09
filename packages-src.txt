@@ -1,4 +1,6 @@
-# Packages NOT in the official Void repos - built locally via xbps-src.
-# discord is a restricted package (needs XBPS_ALLOW_RESTRICTED=yes).
+# Packages NOT in the official Void repos - built locally via xbps-src (build-src.sh).
+# discord  restricted template shipped with void-packages (needs XBPS_ALLOW_RESTRICTED=yes)
+# runner   my own project; build-src.sh clones github.com/removingnest109/runner and
+#          copies its packaging/void/template into void-packages before building
 discord
 runner

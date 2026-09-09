@@ -42,7 +42,10 @@ cd ~/dotfiles
 `install.sh` calls `build-src.sh` for `discord` and `runner`, which aren't in the
 official repos. That step clones `void-packages`, runs a one-time `binary-bootstrap`
 (downloads a base build environment — slow), builds each package, and installs it.
-`discord` is a *restricted* template, so `build-src.sh` sets `XBPS_ALLOW_RESTRICTED=yes`.
+`discord` is a *restricted* template (shipped with void-packages), so `build-src.sh`
+sets `XBPS_ALLOW_RESTRICTED=yes`. `runner` is my own project: `build-src.sh` clones
+`github.com/removingnest109/runner` into `~/Projects/runner` and copies its
+`packaging/void/template` into `void-packages/srcpkgs/runner/` before building.
 Run it on its own any time with `./build-src.sh`.
 If stow reports a conflict, a real file already exists where a symlink should go —
 move/delete it and re-run (`install.sh` uses `stow -R`, so re-running is safe).
