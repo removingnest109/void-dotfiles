@@ -15,8 +15,10 @@ Reproducible config for my Void Linux (xbps, bspwm/X11) machine — Dell Inspiro
 | `local/` | curated `~/.local` (my `bin/` scripts, `share/applications`, icons) |
 | `etc/` | curated `/etc` (xbps mirror config, `tlp.conf`, lightdm) |
 | `install.sh` | restore everything onto a machine (idempotent) |
-| `sync.sh` | refresh the lists/configs **from** this machine so the repo stays current |
-| `build-content.sh` | the curation rules (edit to track more/less); called by `sync.sh` |
+| `sync-packages.sh` | regenerate `packages.txt` + `services.txt` from this machine |
+
+Configs are **stow-managed**: `~/.config`, home dotfiles and `~/.local` are symlinks
+into this repo, so editing them edits the repo directly — no copy step, no drift.
 
 ## Restore on a NEW laptop
 
@@ -59,8 +61,25 @@ move/delete it and re-run (`install.sh` uses `stow -R`, so re-running is safe).
   reinstall extensions from within the editor.
 
 ## Keeping it current
-After installing new software or enabling a service:
+
+**Editing a tracked config** — just edit it in place (e.g. `~/.config/bspwm/bspwmrc`);
+it's a symlink into this repo, so the change is already here. Then:
 ```sh
-~/dotfiles/sync.sh          # regenerates lists + re-copies configs, shows a diff
-git add -A && git commit -m "sync" && git push
+git -C ~/dotfiles add -A && git -C ~/dotfiles commit -m "tweak" && git -C ~/dotfiles push
 ```
+
+**After installing a package or enabling a service** — regenerate the manifests:
+```sh
+~/dotfiles/sync-packages.sh # rewrites packages.txt + services.txt, shows a diff
+git -C ~/dotfiles add -A && git -C ~/dotfiles commit -m "sync" && git -C ~/dotfiles push
+```
+
+**Tracking a NEW config file** — move it into the repo, then stow it back as a symlink:
+```sh
+mv ~/.config/foo ~/dotfiles/config/.config/foo
+stow --no-folding -R -t ~ -d ~/dotfiles config
+git -C ~/dotfiles add -A && git -C ~/dotfiles commit -m "track foo"
+```
+
+**A self-built (xbps-src) package** — add its name to `packages-src.txt` by hand
+(`sync-packages.sh` keeps `packages.txt` and `packages-src.txt` from overlapping).

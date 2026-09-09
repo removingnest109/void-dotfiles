@@ -34,9 +34,11 @@ fi
 
 say "4/7  Symlink dotfiles with stow (config, home, local)"
 command -v stow >/dev/null || run "sudo xbps-install -y stow"
-for pkg in config home local; do
-  [ -d "$REPO/$pkg" ] && run "stow --no-folding -t '$HOME' -d '$REPO' -R '$pkg'"
-done
+# --adopt resolves conflicts with stock files base-system ships (e.g. ~/.bashrc):
+# it pulls the stock file into the repo, then `git checkout` restores our tracked
+# version, so the resulting symlink points at the correct content.
+run "stow --no-folding --adopt -R -t '$HOME' -d '$REPO' config home local"
+run "git -C '$REPO' checkout -- config home local"
 
 say "5/7  Enable runit services"
 while IFS= read -r s; do
