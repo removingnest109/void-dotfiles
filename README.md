@@ -36,7 +36,7 @@ once-per-machine parts a script can't safely do.
 
 ### 2. Scripted restore
 ```sh
-git clone <this repo> ~/dotfiles
+git clone https://github.com/removingnest109/void-dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh --dry-run   # inspect first
 ./install.sh             # repo pkgs → xbps-src pkgs → dotfiles → services → /etc
