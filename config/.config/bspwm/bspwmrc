@@ -37,10 +37,9 @@ pkill -x sxhkd
 sxhkd &
 
 # XFCE panel: the bar, its right-click menus, and the notification area (system
-# tray) that the applets below dock into. This replaces polybar; the polybar
-# config is kept at ~/.config/polybar but is no longer launched. Configure the
-# panel by right-clicking it (add/remove items, e.g. the PulseAudio plugin for
-# sound volume/device control).
+# tray) that the applets below dock into. Configure the panel by right-clicking
+# it (add/remove items, e.g. the PulseAudio plugin for sound volume/device
+# control).
 pkill -x xfce4-panel
 xfce4-panel &
 
@@ -65,7 +64,7 @@ xfce4-power-manager &
 bspc monitor -d 1 2 3 4 5 6 7 8 9 10
 
 # Reserve space for the XFCE panel. bspwm honors _NET_WM_STRUT for some panels
-# (e.g. polybar) but does NOT reserve space for xfce4-panel, so without this
+# but does NOT reserve space for xfce4-panel, so without this
 # windows tile *over* the panel and it looks like it's hiding. Value = panel
 # height, edge = panel position (see: xfconf-query -c xfce4-panel -p
 # /panels/panel-1/size and .../position). Panel is currently 26px on the BOTTOM;
